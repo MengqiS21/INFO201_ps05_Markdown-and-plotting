@@ -1,0 +1,147 @@
+---
+title: "ps5_Markdown"
+author: "Mengqi Shi"
+date: "2023-02-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r first-part, echo=TRUE, results='asis'}
+library(readr)
+gapminder <- read_delim("~/Desktop/INFO 201/ps5_Markdown/gapminder.csv")
+
+num_row <- nrow(gapminder)
+num_row
+num_col <- ncol(gapminder)
+num_col
+data_sample <- head(gapminder, 3)
+data_sample
+cat("It looks OK.")
+```
+
+```{r second-part, echo=FALSE, results='asis'}
+num_iso3 <- unique(gapminder$iso3)
+num_iso3
+num_iso2 <- unique(gapminder$iso2)
+num_iso2
+num_name <- unique(gapminder$name)
+num_name
+
+gapminder%>%
+   group_by(iso2, name)%>%
+   summarise(result=n(),
+          isDubl=ifelse(n()>1,T,F))
+cat("Namibia")
+
+gapminder%>%
+   group_by(iso3, name)%>%
+   summarise(result=n(),
+          isDubl=ifelse(n()>1,T,F))
+cat("CHANISL", "GBM", "KOS", "NLD CURACAO")
+
+min(gapminder$time, na.rm = TRUE)
+max(gapminder$time, na.rm = TRUE)
+```
+```{r third_part}
+library(dplyr)
+library(tidyverse)
+
+na_count_co2 <- gapminder %>%
+  group_by(time) %>%
+  summarize(count_na = sum(is.na(co2)))
+na_count_co2
+
+na_count_co2PC <- gapminder %>%
+  group_by(time) %>%
+  summarize(count_na = sum(is.na(co2_PC)))
+na_count_co2PC
+
+cat("2017")
+
+library(ggplot2)
+data_complete <- gapminder[complete.cases(gapminder), ]
+ggplot(data = data_complete)+
+  geom_point(mapping = aes(x = time, y = co2))
+
+exclude_na <- gapminder %>%
+  filter(!is.na(region), !is.na(co2_PC), !is.na(totalPopulation))
+exclude_na %>%
+  group_by(region,time)%>%
+  filter(time == 2016)%>%
+  summarize(average = mean(co2_PC))
+
+exclude_na_population %>%
+  group_by(region, time)%>%
+  filter(time == 1960)%>%
+  summarize(average = mean(co2_PC))
+
+data <- as.matrix(data.frame(Africa = c(0.291, 1.22),
+                             Americas = c(7.15, 4.80),
+                             Asia = c(1.74, 6.47),
+                             Europe = c(5.77, 6.64),
+                             Oceania = c(2.73, 4.57)))
+rownames(data) <- c("1960", "2016")
+data
+barplot(data,
+        col = c("#1B98E0", "#353436"),
+        beside = TRUE)
+legend("topright",
+       legend = c("1960", "2016"),
+       fill = c("#1B98E0", "#353436"))
+
+
+##
+
+```
+```{r forth part}
+library(ggplot2)
+gdp_lifeexpectancy <- ggplot(data = subset(gapminder, !is.na(region), !is.na(name)), aes(x = GDP_PC, y = lifeExpectancy, color = region)) + 
+  geom_point(aes(size = totalPopulation)) +
+  geom_point(alpha = 0.1) +
+  xlab("GDP_PC") +
+  ylab("life expectancy")
+gdp_lifeexpectancy
+
+gdp_lifeexpectancy2 <- ggplot(data = filter(gapminder, time == 2019), aes(x = GDP_PC, y = lifeExpectancy, color = region)) + 
+  geom_point(aes(size = totalPopulation)) +
+  geom_point(alpha = 0.1) +
+  xlab("GDP_PC") +
+  ylab("life expectancy")
+gdp_lifeexpectancy2
+
+cat("Q3 answer")
+
+exclude_na_life <- gapminder %>%
+  filter(!is.na(region), !is.na(lifeExpectancy))
+exclude_na_life %>%
+  group_by(region, time)%>%
+  filter(time == 1960)%>%
+  summarize(average = mean(lifeExpectancy))
+
+exclude_na_life %>%
+  group_by(region, time)%>%
+  filter(time == 2019)%>%
+  summarize(average = mean(lifeExpectancy))
+
+cat("Yes")
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
